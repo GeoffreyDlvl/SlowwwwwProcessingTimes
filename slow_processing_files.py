@@ -1,5 +1,6 @@
 import os
-from flask import Flask, flash, jsonify, request
+import time
+from flask import Flask, jsonify, request
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -35,6 +36,13 @@ def upload_archive():
         resp.status_code = 201
         return resp
     else:
-        resp = jsonify({'message' : 'Allowed file types are rar and zip'})
+        resp = jsonify({'message' : 'Allowed file types are .rar and .zip'})
         resp.status_code = 400
         return resp
+
+@app.route('/crack/<filename>', methods=['GET'])
+def crack(filename):
+    if filename not in os.listdir(app.config['UPLOAD_FOLDER']):
+        return jsonify({'file': filename, 'message': 'File not found'})
+    time.sleep(5)
+    return jsonify({'file': filename, 'message': 'Crack successful!', 'password': 'the-password'})
