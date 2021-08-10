@@ -57,7 +57,7 @@ def upload_archive():
         archive_cracks[filename].state = State.UPLOADING
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         archive_cracks[filename].state = State.UPLOADED
-        resp = jsonify({'message' : 'File successfully uploaded', 'filename': filename, 'archive_info': archive_cracks[filename].serialize()})
+        resp = jsonify({'message' : 'File successfully uploaded'})
         resp.status_code = 201
         return resp
     else:
@@ -71,5 +71,8 @@ def crack(filename):
         return jsonify({'file': filename, 'message': 'File not found'})
     archive_cracks[filename].state = State.CRACKING
     time.sleep(10)
+    password = 'the-password'
     archive_cracks[filename].state = State.CRACKED
-    return jsonify({'file': filename, 'message': 'Crack successful!', 'password': 'the-password'})
+    archive_cracks[filename].is_cracked = True
+    archive_cracks[filename].password = password
+    return jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
