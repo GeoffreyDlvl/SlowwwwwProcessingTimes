@@ -19,7 +19,7 @@ class ArchiveInfo:
     def serialize(self):  
         return {           
             'state': self.state,
-            'is_cracked': self.cracked,
+            'is_cracked': self.is_cracked,
             'password': self.password
         }
 
@@ -66,13 +66,29 @@ def upload_archive():
         return resp
 
 @app.route('/crack/<filename>', methods=['GET'])
-def crack(filename):
+def crack(filename): #TODO: crash if file not found??
+    #candidate to refactoring
     if filename not in os.listdir(app.config['UPLOAD_FOLDER']):
-        return jsonify({'file': filename, 'message': 'File not found'})
+        resp = jsonify({'file': filename, 'message': 'File not found'})
+        resp.status_code = 400
+        return resp
     archive_cracks[filename].state = State.CRACKING
     time.sleep(10)
     password = 'the-password'
     archive_cracks[filename].state = State.CRACKED
     archive_cracks[filename].is_cracked = True
     archive_cracks[filename].password = password
-    return jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
+    resp = jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
+    resp.status_code = 201
+    return resp
+
+@app.route('/state/<filename>', methods=['GET'])
+def get_archive_info(filename):
+    #candidate to refactoring
+    if filename not in os.listdir(app.config['UPLOAD_FOLDER']):
+        resp = jsonify({'file': filename, 'message': 'File not found'})
+        resp.status_code = 400
+        return resp
+    resp = jsonify({'filename': filename, 'archive_info': archive_cracks[filename].serialize()})
+    resp.status_code = 201
+    return resp
