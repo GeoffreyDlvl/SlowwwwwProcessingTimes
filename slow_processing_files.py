@@ -25,6 +25,9 @@ class ArchiveInfo:
 
 app = Flask(__name__)
 
+#set jobs limit
+app.config['JOBS_LIMIT'] = 2
+
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
@@ -32,7 +35,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = set(['zip', 'rar'])
 
+# Global variables
 archive_cracks = {}
+job_count = 0
 
 # Init
 for archive_name in os.listdir(app.config['UPLOAD_FOLDER']):
@@ -76,15 +81,25 @@ def crack(filename): #TODO: crash if file not found??
         resp = jsonify({'file': filename, 'message': 'File not found'})
         resp.status_code = 400
         return resp
-    archive_cracks[filename].state = State.CRACKING
-    time.sleep(10)
-    password = 'the-password'
-    archive_cracks[filename].state = State.CRACKED
-    archive_cracks[filename].is_cracked = True
-    archive_cracks[filename].password = password
-    resp = jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
-    resp.status_code = 201
-    return resp
+    
+    global job_count
+    if job_count < app.config['JOBS_LIMIT']:
+        job_count += 1
+        archive_cracks[filename].state = State.CRACKING
+        time.sleep(10)
+        password = 'the-password'
+        archive_cracks[filename].state = State.CRACKED
+        archive_cracks[filename].is_cracked = True
+        archive_cracks[filename].password = password
+        job_count -= 1
+        resp = jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify({'message': 'Jobs limit reached'})
+        resp.status_code = 201
+        return resp
+
 
 @app.route('/state/<filename>', methods=['GET'])
 def get_archive_info(filename):
@@ -96,3 +111,27 @@ def get_archive_info(filename):
     resp = jsonify({'filename': filename, 'archive_info': archive_cracks[filename].serialize()})
     resp.status_code = 201
     return resp
+
+@app.route('/jobs', methods=['GET','POST'])
+def jobs():
+    if request.method == 'GET':
+        resp = jsonify({'current_jobs_limit': app.config['JOBS_LIMIT']})
+        resp.status_code = 201
+        return resp
+    else:
+        data = request.get_json()
+        if data is None:
+            resp = jsonify({'message': 'Error: mimetype is not application/json'})
+            resp.status_code = 400
+            return resp
+        else:
+            try:
+                new_jobs_limit = data['jobs_limit']
+                app.config['JOBS_LIMIT'] = new_jobs_limit
+                resp = jsonify({'new_jobs_limit': app.config['JOBS_LIMIT']})
+                resp.status_code = 201
+                return resp
+            except KeyError:
+                resp = jsonify({'message': 'Key is not recognized'})
+                resp.status_code = 400
+                return resp
