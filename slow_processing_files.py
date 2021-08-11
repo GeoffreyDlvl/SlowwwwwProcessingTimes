@@ -25,6 +25,9 @@ class ArchiveInfo:
 
 app = Flask(__name__)
 
+#set jobs limit
+app.config['JOBS_LIMIT'] = 2
+
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
@@ -96,3 +99,27 @@ def get_archive_info(filename):
     resp = jsonify({'filename': filename, 'archive_info': archive_cracks[filename].serialize()})
     resp.status_code = 201
     return resp
+
+@app.route('/jobs', methods=['GET','POST'])
+def jobs():
+    if request.method == 'GET':
+        resp = jsonify({'current_jobs_limit': app.config['JOBS_LIMIT']})
+        resp.status_code = 201
+        return resp
+    else:
+        data = request.get_json()
+        if data is None:
+            resp = jsonify({'message': 'Error: mimetype is not application/json.'})
+            resp.status_code = 400
+            return resp
+        else:
+            try:
+                new_jobs_limit = data['jobs_limit']
+                app.config['JOBS_LIMIT'] = new_jobs_limit
+                resp = jsonify({'new_jobs_limit': app.config['JOBS_LIMIT']})
+                resp.status_code = 201
+                return resp
+            except KeyError:
+                resp = jsonify({'message': 'Key is not recognized.'})
+                resp.status_code = 400
+                return resp
