@@ -35,7 +35,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = set(['zip', 'rar'])
 
+# Global variables
 archive_cracks = {}
+job_count = 0
 
 # Init
 for archive_name in os.listdir(app.config['UPLOAD_FOLDER']):
@@ -79,15 +81,25 @@ def crack(filename): #TODO: crash if file not found??
         resp = jsonify({'file': filename, 'message': 'File not found'})
         resp.status_code = 400
         return resp
-    archive_cracks[filename].state = State.CRACKING
-    time.sleep(10)
-    password = 'the-password'
-    archive_cracks[filename].state = State.CRACKED
-    archive_cracks[filename].is_cracked = True
-    archive_cracks[filename].password = password
-    resp = jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
-    resp.status_code = 201
-    return resp
+    
+    global job_count
+    if job_count < app.config['JOBS_LIMIT']:
+        job_count += 1
+        archive_cracks[filename].state = State.CRACKING
+        time.sleep(10)
+        password = 'the-password'
+        archive_cracks[filename].state = State.CRACKED
+        archive_cracks[filename].is_cracked = True
+        archive_cracks[filename].password = password
+        job_count -= 1
+        resp = jsonify({'file': filename, 'message': 'Crack successful!', 'password': password})
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify({'message': 'Jobs limit reached'})
+        resp.status_code = 201
+        return resp
+
 
 @app.route('/state/<filename>', methods=['GET'])
 def get_archive_info(filename):
@@ -109,7 +121,7 @@ def jobs():
     else:
         data = request.get_json()
         if data is None:
-            resp = jsonify({'message': 'Error: mimetype is not application/json.'})
+            resp = jsonify({'message': 'Error: mimetype is not application/json'})
             resp.status_code = 400
             return resp
         else:
@@ -120,6 +132,6 @@ def jobs():
                 resp.status_code = 201
                 return resp
             except KeyError:
-                resp = jsonify({'message': 'Key is not recognized.'})
+                resp = jsonify({'message': 'Key is not recognized'})
                 resp.status_code = 400
                 return resp
