@@ -34,6 +34,10 @@ ALLOWED_EXTENSIONS = set(['zip', 'rar'])
 
 archive_cracks = {}
 
+# Init
+for archive_name in os.listdir(app.config['UPLOAD_FOLDER']):
+    archive_cracks[archive_name] = ArchiveInfo()
+
 def is_file_allowed(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
