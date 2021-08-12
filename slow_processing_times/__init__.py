@@ -1,6 +1,22 @@
 import os
 from flask import Flask
 
+from slow_processing_times.entities.archive_info_entity import ArchiveInfo
+from slow_processing_times.enums.state_enum import State
+
+from . import db
+from .blueprints import crack
+from .blueprints import archive
+
+def load_archives_dict(app):
+    for row in db.get_db().execute("SELECT * FROM cracked_password"):
+        filename = row['filename']
+        password = row['password']
+        crack.archives[filename] = ArchiveInfo(state=State.CRACKED, is_cracked=True, password=password)
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        if filename not in crack.archives:
+            crack.archives[filename] = ArchiveInfo(state=State.UPLOADED)
+
 # Application Factory
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -29,13 +45,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import db
     db.init_app(app)
 
-    from .blueprints import crack
     app.register_blueprint(crack.bp)
 
-    from .blueprints import archive
     app.register_blueprint(archive.bp)
+
+    with app.app_context():
+        load_archives_dict(app)
 
     return app

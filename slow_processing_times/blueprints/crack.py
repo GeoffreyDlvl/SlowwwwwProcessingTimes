@@ -1,27 +1,29 @@
-import os, time
+import time
 from flask import (
     Blueprint, request, current_app
 )
-from werkzeug.exceptions import Unauthorized
 
 from .. import utils
 from ..enums.state_enum import State
-from ..entities.archive_info_entity import ArchiveInfo
 from slow_processing_times.db import get_db
 
 bp = Blueprint('crack', __name__, url_prefix='/crack')
 
 # Global
 job_count = 0
-archive_cracks = {}
+archives = {}
 
-# Init - TODO: load from db
-#for archive_name in os.listdir(current_app.config['UPLOAD_FOLDER']):
-#    archive_cracks[archive_name] = ArchiveInfo()
-archive_cracks["myarchive.zip"] = ArchiveInfo()
+@bp.route('/', methods=['POST'])
+def crack():
+    data = request.get_json()
+    if data is None:
+        return utils.createResponse({'message': 'Error: mimetype is not application/json'}, 400)
+    else:
+        try:
+            filename = data['filename']
+        except KeyError:
+            return utils.createResponse({'message': 'Key is not recognized. Use \'filename\''}, 400)
 
-@bp.route('/<filename>', methods=['GET'])
-def crack(filename):
     if not utils.archive_exists(filename):
         return utils.createResponse({'file': filename, 'message': 'File not found'}, 400)
     
@@ -29,8 +31,15 @@ def crack(filename):
     if job_count < current_app.config['JOBS_LIMIT']:
         job_count += 1
         db = get_db()
-        # TODO: Check if archive has already been cracked
-        archive_cracks[filename].state = State.CRACKING
+        for row in db.execute("SELECT * FROM cracked_password"):
+            if row['filename'] == filename: #TODO: use checksum
+                return utils.createResponse(
+                {
+                    'message': 'Archive has already been cracked', 
+                    'archive_info': archives[filename].serialize()
+                }
+                , 201)
+        archives[filename].state = State.CRACKING
         time.sleep(10)
         job_count -= 1
         password = 'the-password'
@@ -40,17 +49,17 @@ def crack(filename):
                 ("the_checksum", filename, password),
             )
             db.commit()
-        except db.IntegrityError: #TODO: get this before crack attempt
+        except db.IntegrityError:
             return utils.createResponse(
                 {
-                    'message': 'Archive has already been cracked', 
-                    'archive_info': archive_cracks[filename].serialize()
+                    'message': 'Crack successful but there was an error updating the database. Duplicate checksum?', 
+                    'password': password
                 }
-                , 201)
+                , 400)
         else:
-            archive_cracks[filename].state = State.CRACKED
-            archive_cracks[filename].is_cracked = True
-            archive_cracks[filename].password = password
+            archives[filename].state = State.CRACKED
+            archives[filename].is_cracked = True
+            archives[filename].password = password
             return utils.createResponse({'file': filename, 'message': 'Crack successful!', 'password': password}, 201)
     else:
         return utils.createResponse({'message': 'Jobs limit reached'}, 201)

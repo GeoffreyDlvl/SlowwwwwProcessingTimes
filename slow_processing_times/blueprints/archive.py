@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from .. import utils
 from ..enums.state_enum import State
 from ..entities.archive_info_entity import ArchiveInfo
-from ..blueprints.crack import archive_cracks
+from ..blueprints.crack import archives
 
 bp = Blueprint('archive', __name__, url_prefix='/archive')
 
@@ -26,10 +26,10 @@ def upload_archive():
         return utils.createResponse({'message' : 'No file selected for uploading'}, 400)
     if file and is_file_allowed(file.filename):
         filename = secure_filename(file.filename)
-        archive_cracks[filename] = ArchiveInfo()
-        archive_cracks[filename].state = State.UPLOADING
+        archives[filename] = ArchiveInfo()
+        archives[filename].state = State.UPLOADING
         file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-        archive_cracks[filename].state = State.UPLOADED
+        archives[filename].state = State.UPLOADED
         return utils.createResponse({'message' : 'File successfully uploaded'}, 201)
     else:
         return utils.createResponse({'message' : 'Allowed file types are .rar and .zip'}, 400)
@@ -44,7 +44,7 @@ def get_archive_password():
     except KeyError:
         return utils.createResponse({'message': 'Key is not recognized. Use \'filename\''}, 400)
 
-    #candidate to refactoring
     if not utils.archive_exists(filename):
         return utils.createResponse({'file': filename, 'message': 'File not found'}, 400)
-    return utils.createResponse({'filename': filename, 'archive_info': archive_cracks[filename].serialize()}, 201)
+        
+    return utils.createResponse({'filename': filename, 'archive_info': archives[filename].serialize()}, 201)
