@@ -1,9 +1,10 @@
 import os
 from flask import (
-    Blueprint, g, request, jsonify, current_app
+    Blueprint, request, current_app
 )
 from werkzeug.utils import secure_filename
 
+from .. import utils
 from ..enums.state_enum import State
 from ..entities.archive_info_entity import ArchiveInfo
 from ..blueprints.crack import archive_cracks
@@ -17,49 +18,33 @@ def is_file_allowed(filename):
 @bp.route('/upload', methods=['POST'])
 def upload_archive():
     if 'file' not in request.files:
-        resp = jsonify({'message' : 'No file part in the request'})
-        resp.status_code = 400
-        return resp      
+        return utils.createResponse({'message' : 'No file part in the request'}, 400)   
     
     file = request.files['file']
 
     if file.filename == '':
-        resp = jsonify({'message' : 'No file selected for uploading'})
-        resp.status_code = 400
-        return resp
+        return utils.createResponse({'message' : 'No file selected for uploading'}, 400)
     if file and is_file_allowed(file.filename):
         filename = secure_filename(file.filename)
         archive_cracks[filename] = ArchiveInfo()
         archive_cracks[filename].state = State.UPLOADING
         file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
         archive_cracks[filename].state = State.UPLOADED
-        resp = jsonify({'message' : 'File successfully uploaded'})
-        resp.status_code = 201
-        return resp
+        return utils.createResponse({'message' : 'File successfully uploaded'}, 201)
     else:
-        resp = jsonify({'message' : 'Allowed file types are .rar and .zip'})
-        resp.status_code = 400
-        return resp
+        return utils.createResponse({'message' : 'Allowed file types are .rar and .zip'}, 400)
 
 @bp.route('/password', methods=['POST'])
 def get_archive_password():
     data = request.get_json()
     if data is None:
-        resp = jsonify({'message': 'Error: mimetype is not application/json'})
-        resp.status_code = 400
-        return resp
+        return utils.createResponse({'message': 'Error: mimetype is not application/json'}, 400)
     try:
         filename = data['filename']
     except KeyError:
-        resp = jsonify({'message': 'Key is not recognized. Use \'filename\''})
-        resp.status_code = 400
-        return resp
+        return utils.createResponse({'message': 'Key is not recognized. Use \'filename\''}, 400)
 
     #candidate to refactoring
-    if filename not in os.listdir(current_app.config['UPLOAD_FOLDER']):
-        resp = jsonify({'file': filename, 'message': 'File not found'})
-        resp.status_code = 400
-        return resp
-    resp = jsonify({'filename': filename, 'archive_info': archive_cracks[filename].serialize()})
-    resp.status_code = 201
-    return resp
+    if not utils.archive_exists(filename):
+        return utils.createResponse({'file': filename, 'message': 'File not found'}, 400)
+    return utils.createResponse({'filename': filename, 'archive_info': archive_cracks[filename].serialize()}, 201)
