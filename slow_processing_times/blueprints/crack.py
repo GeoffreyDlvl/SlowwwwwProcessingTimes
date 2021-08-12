@@ -1,8 +1,7 @@
-import os, time
+import time
 from flask import (
     Blueprint, request, current_app
 )
-from werkzeug.exceptions import Unauthorized
 
 from .. import utils
 from ..enums.state_enum import State
@@ -12,10 +11,19 @@ bp = Blueprint('crack', __name__, url_prefix='/crack')
 
 # Global
 job_count = 0
-archive_cracks = {}
+archives = {}
 
-@bp.route('/<filename>', methods=['GET'])
-def crack(filename):
+@bp.route('/', methods=['POST'])
+def crack():
+    data = request.get_json()
+    if data is None:
+        return utils.createResponse({'message': 'Error: mimetype is not application/json'}, 400)
+    else:
+        try:
+            filename = data['filename']
+        except KeyError:
+            return utils.createResponse({'message': 'Key is not recognized. Use \'filename\''}, 400)
+
     if not utils.archive_exists(filename):
         return utils.createResponse({'file': filename, 'message': 'File not found'}, 400)
     
@@ -28,10 +36,10 @@ def crack(filename):
                 return utils.createResponse(
                 {
                     'message': 'Archive has already been cracked', 
-                    'archive_info': archive_cracks[filename].serialize()
+                    'archive_info': archives[filename].serialize()
                 }
                 , 201)
-        archive_cracks[filename].state = State.CRACKING
+        archives[filename].state = State.CRACKING
         time.sleep(10)
         job_count -= 1
         password = 'the-password'
@@ -49,9 +57,9 @@ def crack(filename):
                 }
                 , 400)
         else:
-            archive_cracks[filename].state = State.CRACKED
-            archive_cracks[filename].is_cracked = True
-            archive_cracks[filename].password = password
+            archives[filename].state = State.CRACKED
+            archives[filename].is_cracked = True
+            archives[filename].password = password
             return utils.createResponse({'file': filename, 'message': 'Crack successful!', 'password': password}, 201)
     else:
         return utils.createResponse({'message': 'Jobs limit reached'}, 201)
