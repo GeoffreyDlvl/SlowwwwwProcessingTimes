@@ -17,26 +17,26 @@ archives = {}
 def crack():
     data = request.get_json()
     if data is None:
-        return utils.createResponse({'message': 'Error: mimetype is not application/json'}, 400)
+        return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
     else:
         try:
             filename = data['filename']
         except KeyError:
-            return utils.createResponse({'message': 'Key is not recognized. Use \'filename\''}, 400)
+            return utils.create_response({'message': 'Key is not recognized. Use \'filename\''}, 400)
 
     if not utils.archive_exists(filename):
-        return utils.createResponse({'file': filename, 'message': 'File not found'}, 400)
+        return utils.create_response({'file': filename, 'message': 'File not found'}, 400)
     
     global job_count
     if job_count < current_app.config['JOBS_LIMIT']:
         job_count += 1
         db = get_db()
         for row in db.execute("SELECT * FROM cracked_password"):
-            if row['filename'] == filename: #TODO: use checksum
-                return utils.createResponse(
+            if row['md5_checksum'] == utils.compute_checksum(filename):
+                return utils.create_response(
                 {
                     'message': 'Archive has already been cracked', 
-                    'archive_info': archives[filename].serialize()
+                    'archive_info': archives[row['filename']].serialize()
                 }
                 , 201)
         archives[filename].state = State.CRACKING
@@ -46,13 +46,13 @@ def crack():
         try:
             db.execute(
                 "INSERT INTO cracked_password (md5_checksum, filename, password) VALUES (?, ?, ?)",
-                ("the_checksum", filename, password),
+                (utils.compute_checksum(filename), filename, password),
             )
             db.commit()
         except db.IntegrityError:
-            return utils.createResponse(
+            return utils.create_response(
                 {
-                    'message': 'Crack successful but there was an error updating the database. Duplicate checksum?', 
+                    'message': 'Crack successful but there was an error updating the database.', 
                     'password': password
                 }
                 , 400)
@@ -60,23 +60,23 @@ def crack():
             archives[filename].state = State.CRACKED
             archives[filename].is_cracked = True
             archives[filename].password = password
-            return utils.createResponse({'file': filename, 'message': 'Crack successful!', 'password': password}, 201)
+            return utils.create_response({'file': filename, 'message': 'Crack successful!', 'password': password}, 201)
     else:
-        return utils.createResponse({'message': 'Jobs limit reached'}, 201)
+        return utils.create_response({'message': 'Jobs limit reached'}, 201)
 
 @bp.route('/jobs', methods=['GET','POST'])
 def jobs():
     if request.method == 'GET':
-        return utils.createResponse({'current_jobs_limit': current_app.config['JOBS_LIMIT']}, 201)
+        return utils.create_response({'current_jobs_limit': current_app.config['JOBS_LIMIT']}, 201)
     else:
         data = request.get_json()
         if data is None:
-            return utils.createResponse({'message': 'Error: mimetype is not application/json'}, 400)
+            return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
         else:
             try:
                 new_jobs_limit = data['jobs_limit']
                 current_app.config['JOBS_LIMIT'] = new_jobs_limit
             except KeyError:
-                return utils.createResponse({'message': 'Key is not recognized. Use \'jobs_limit\''}, 400)
+                return utils.create_response({'message': 'Key is not recognized. Use \'jobs_limit\''}, 400)
             else:
-                return utils.createResponse({'new_jobs_limit': current_app.config['JOBS_LIMIT']}, 400)
+                return utils.create_response({'new_jobs_limit': current_app.config['JOBS_LIMIT']}, 400)
