@@ -32,11 +32,11 @@ def crack():
         job_count += 1
         db = get_db()
         for row in db.execute("SELECT * FROM cracked_password"):
-            if row['filename'] == filename: #TODO: use checksum
+            if row['md5_checksum'] == utils.compute_checksum(filename):
                 return utils.create_response(
                 {
                     'message': 'Archive has already been cracked', 
-                    'archive_info': archives[filename].serialize()
+                    'archive_info': archives[row['filename']].serialize()
                 }
                 , 201)
         archives[filename].state = State.CRACKING
@@ -52,7 +52,7 @@ def crack():
         except db.IntegrityError:
             return utils.create_response(
                 {
-                    'message': 'Crack successful but there was an error updating the database. Duplicate checksum?', 
+                    'message': 'Crack successful but there was an error updating the database.', 
                     'password': password
                 }
                 , 400)
