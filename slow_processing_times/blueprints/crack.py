@@ -23,7 +23,14 @@ def crack(filename):
     if job_count < current_app.config['JOBS_LIMIT']:
         job_count += 1
         db = get_db()
-        # TODO: Check if archive has already been cracked
+        for row in db.execute("SELECT * FROM cracked_password"):
+            if row['filename'] == filename: #TODO: use checksum
+                return utils.createResponse(
+                {
+                    'message': 'Archive has already been cracked', 
+                    'archive_info': archive_cracks[filename].serialize()
+                }
+                , 201)
         archive_cracks[filename].state = State.CRACKING
         time.sleep(10)
         job_count -= 1
@@ -34,13 +41,13 @@ def crack(filename):
                 ("the_checksum", filename, password),
             )
             db.commit()
-        except db.IntegrityError: #TODO: get this before crack attempt
+        except db.IntegrityError:
             return utils.createResponse(
                 {
-                    'message': 'Archive has already been cracked', 
-                    'archive_info': archive_cracks[filename].serialize()
+                    'message': 'Crack successful but there was an error updating the database. Duplicate checksum?', 
+                    'password': password
                 }
-                , 201)
+                , 400)
         else:
             archive_cracks[filename].state = State.CRACKED
             archive_cracks[filename].is_cracked = True
