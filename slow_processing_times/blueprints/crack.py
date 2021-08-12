@@ -6,7 +6,6 @@ from werkzeug.exceptions import Unauthorized
 
 from .. import utils
 from ..enums.state_enum import State
-from ..entities.archive_info_entity import ArchiveInfo
 from slow_processing_times.db import get_db
 
 bp = Blueprint('crack', __name__, url_prefix='/crack')
@@ -14,11 +13,6 @@ bp = Blueprint('crack', __name__, url_prefix='/crack')
 # Global
 job_count = 0
 archive_cracks = {}
-
-# Init - TODO: load from db
-#for archive_name in os.listdir(current_app.config['UPLOAD_FOLDER']):
-#    archive_cracks[archive_name] = ArchiveInfo()
-archive_cracks["myarchive.zip"] = ArchiveInfo()
 
 @bp.route('/<filename>', methods=['GET'])
 def crack(filename):

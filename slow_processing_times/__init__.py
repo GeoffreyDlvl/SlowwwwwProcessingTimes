@@ -1,5 +1,9 @@
 import os
+from slow_processing_times.utils import archive_exists
 from flask import Flask
+
+from slow_processing_times.entities.archive_info_entity import ArchiveInfo
+from slow_processing_times.enums.state_enum import State
 
 # Application Factory
 def create_app(test_config=None):
@@ -37,5 +41,11 @@ def create_app(test_config=None):
 
     from .blueprints import archive
     app.register_blueprint(archive.bp)
+
+    with app.app_context():
+        for row in db.get_db().execute("SELECT * FROM cracked_password"):
+            filename = row['filename']
+            password = row['password']
+            crack.archive_cracks[filename] = ArchiveInfo(state=State.CRACKED, is_cracked=True, password=password)
 
     return app

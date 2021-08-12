@@ -44,7 +44,7 @@ def get_archive_password():
     except KeyError:
         return utils.createResponse({'message': 'Key is not recognized. Use \'filename\''}, 400)
 
-    #candidate to refactoring
     if not utils.archive_exists(filename):
         return utils.createResponse({'file': filename, 'message': 'File not found'}, 400)
+        
     return utils.createResponse({'filename': filename, 'archive_info': archive_cracks[filename].serialize()}, 201)
