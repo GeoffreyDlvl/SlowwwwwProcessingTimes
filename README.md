@@ -61,16 +61,19 @@ All required dependencies are listed in `requirements.txt`. See <a href="#instal
   ```sh
   py -m pip install -r requirements.txt
   ```
-4. Initialize / reset database:
+4. Export required environment variables:
+  ```sh
+  .\setenv_windows_dev.bat 
+  ```
+  > If you are running on a linux system, run `setenv_linux_dev.sh` instead.
+5. Initialize / reset database:
   ```sh
   flask init-db
   ```
 6. Start the application:
   ```sh
-  .\run_windows_dev.bat 
+  flask run
   ```
-  > If you are running on a linux system, run `run_linux_dev.sh` instead.
-
   This will start a lightweight local development server on your machine. The application runs on `localhost:5000`. 
 
 ## Usage
