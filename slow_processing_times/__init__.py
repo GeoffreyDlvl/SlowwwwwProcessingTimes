@@ -55,6 +55,9 @@ def create_app(test_config=None):
     app.register_blueprint(processing.bp)
 
     with app.app_context():
-        load_archives_dict(app)
-
+        try:
+            load_archives_dict(app)
+        except:
+            pass
+        
     return app
