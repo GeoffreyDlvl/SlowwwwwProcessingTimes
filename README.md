@@ -40,7 +40,7 @@ This project is a simple back-end implementation of the following exercice: http
 ## Getting Started
 ### Prerequisites
 Be sure that `python 3.9.6` and `pip` are installed on your system.
-All requires dependencies are listed in `requirements.txt`. See <a href="#installation">Installation</a> for detailed steps on how to create your virtual environment. 
+All required dependencies are listed in `requirements.txt`. See <a href="#installation">Installation</a> for detailed steps on how to create your virtual environment. 
 
 ### Installation
 > Instructions displayed in this file assume you are running the app on a Windows OS. If your system is different, simply replace the commands with the corresponding Unix/macOS equivalent.
@@ -61,7 +61,7 @@ All requires dependencies are listed in `requirements.txt`. See <a href="#instal
   ```sh
   py -m pip install -r requirements.txt
   ```
-4. Initalize / reset database:
+4. Initialize / reset database:
   ```sh
   flask init-db
   ```
