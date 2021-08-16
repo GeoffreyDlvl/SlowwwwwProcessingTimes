@@ -74,7 +74,49 @@ To illustrate the different routes and features available, we will be using [Pos
 
 ### Upload an archive
 ![Upload_archive](/docs/upload-archive.png?raw=true)
+* Route: http://127.0.0.1:5000/archive/upload
+* Method: POST
+* Body: multipart/form-data
 
+### Check archive status
+![Info_archive](/docs/info-archive.png?raw=true)
+* Route: http://127.0.0.1:5000/archive/info
+* Method: POST
+* Enctype: application/json
+  * key: filename
+  * value: name of the archive (extension included)
+
+### Crack an archive
+![Crack_archive](/docs/crack-archive.png?raw=true)
+* Route: http://127.0.0.1:5000/crack/
+* Method: POST
+* Enctype: application/json
+  * key: filename
+  * value: name of the archive (extension included)
+> Mock behavior: waits for 10 seconds
+
+### Get jobs limit
+![Get_jobs_limit](/docs/get-jobs-limit.png?raw=true)
+* Route: http://127.0.0.1:5000/crack/jobs
+* Method: GET
+
+### Set jobs limit
+![Set_jobs_limit](/docs/set-jobs-limit.png?raw=true)
+* Route: http://127.0.0.1:5000/crack/jobs
+* Method: POST
+* Enctype: application/json
+  * key: jobs_limit
+  * value: the new jobs limit
+
+### Crack an archive
+![Some_processing](/docs/some-processing.png?raw=true)
+* Route: http://127.0.0.1:5000/processing/some_processing
+* Method: POST
+* Enctype: application/json
+  * key: filename
+  * value: name of the archive (extension included)
+> Mock behavior: waits for 10 seconds. \
+> Multiple processing operations can be added in a queue.
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
