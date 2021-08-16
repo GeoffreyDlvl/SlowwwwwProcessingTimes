@@ -36,7 +36,9 @@ def crack():
                 }
                 , 201)
         archives[filename].state = State.CRACKING
+        print('CRAKING...')
         time.sleep(10)
+        print('DONE.')
         job_count -= 1
         password = 'the-password'
         try:
@@ -65,14 +67,13 @@ def jobs():
     if request.method == 'GET':
         return utils.create_response({'current_jobs_limit': current_app.config['JOBS_LIMIT']}, 201)
     else:
-        data = request.get_json()
-        if data is None:
+        if not request.is_json:
             return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
+        data = request.get_json()
+        try:
+            new_jobs_limit = data['jobs_limit']
+            current_app.config['JOBS_LIMIT'] = new_jobs_limit
+        except KeyError:
+            return utils.create_response({'message': 'Key is not recognized. Use \'jobs_limit\''}, 400)
         else:
-            try:
-                new_jobs_limit = data['jobs_limit']
-                current_app.config['JOBS_LIMIT'] = new_jobs_limit
-            except KeyError:
-                return utils.create_response({'message': 'Key is not recognized. Use \'jobs_limit\''}, 400)
-            else:
-                return utils.create_response({'new_jobs_limit': current_app.config['JOBS_LIMIT']}, 400)
+            return utils.create_response({'new_jobs_limit': current_app.config['JOBS_LIMIT']}, 400)
