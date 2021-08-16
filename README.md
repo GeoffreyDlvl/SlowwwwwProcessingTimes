@@ -127,5 +127,5 @@ To illustrate the different routes and features available, we will be using [Pos
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
-Geoffrey Delval <geoffrey.dlvl@gmail.com>
+Geoffrey Delval \<geoffrey.dlvl@gmail.com\> \
 Project Link: [https://github.com/GeoffreyDlvl/SlowwwwwProcessingTimes](https://github.com/GeoffreyDlvl/SlowwwwwProcessingTimes)
