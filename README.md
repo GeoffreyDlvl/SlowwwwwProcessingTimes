@@ -1,6 +1,4 @@
 # Slowwwww Processing Times
-> https://www.notion.so/Back-Slowwwww-processing-times-a9f751385277466ca00e5ee0b69280dc
-
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
@@ -28,140 +26,59 @@
   </ol>
 </details>
 
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-There are many great README templates available on GitHub, however, I didn't find one that really suit my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have have contributed to expanding this template!
-
-A list of commonly used resources that I find helpful are listed in the acknowledgements.
-
+This project is a simple back-end implementation of the following exercice: https://www.notion.so/Back-Slowwwww-processing-times-a9f751385277466ca00e5ee0b69280dc
 ### Built With
+* [Flask](https://flask.palletsprojects.com/en/2.0.x/)
+* See `requirements.txt` to read about specific tools required to build and run the project.
 
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
-* [Laravel](https://laravel.com)
-
-
-
-<!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
 ### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+Be sure that `python 3.9.6` and `pip` are installed on your system.
+All requires dependencies are listed in `requirements.txt`. See <a href="#installation">Installation</a> for detailed steps on how to create your virtual environment. 
 
 ### Installation
+> Instructions displayed in this file assume you are running the app on a Windows OS. If your system is different, simply replace the commands with the corresponding Unix/macOS equivalent.
+1. Clone the repo:
+  ```sh
+  git clone https://github.com/GeoffreyDlvl/SlowwwwwProcessingTimes.git
+  ```
+2. Create a new virtual environment:
+  ```sh
+  py -m venv env
+  ```
+  > The environment is named `env` and can be activated with the following command:
+  > ```sh
+  > .\env\Scripts\activate
+  > ```
+  > Leave the virtual environment with the `deactivate` command.
+3. Automatically install all dependencies:
+  ```sh
+  py -m pip install -r requirements.txt
+  ```
+4. Initalize / reset database:
+  ```sh
+  flask init-db
+  ```
+6. Start the application:
+  ```sh
+  .\run_windows_dev.bat 
+  ```
+  > If you are running on a linux system, run `run_linux_dev.sh` instead.
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```JS
-   const API_KEY = 'ENTER YOUR API';
-   ```
+  This will start a lightweight local development server on your machine. The application runs on `localhost:5000`. 
 
-
-
-<!-- USAGE EXAMPLES -->
 ## Usage
+This project is a back-end implementation. As a result, requests must be sent over HTTP if you want to interact with it.
+To illustrate the different routes and features available, we will be using [Postman](https://www.postman.com/). It is advised to download the client to bypass web-browser limitations.
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+### Upload an archive
+![Upload_archive](/docs/upload-archive.png?raw=true)
 
 
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-
-<!-- LICENSE -->
 ## License
-
 Distributed under the MIT License. See `LICENSE` for more information.
 
-
-
-<!-- CONTACT -->
 ## Contact
-
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
-* [Font Awesome](https://fontawesome.com)
-
-
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
+Geoffrey Delval <geoffrey.dlvl@gmail.com>
+Project Link: [https://github.com/GeoffreyDlvl/SlowwwwwProcessingTimes](https://github.com/GeoffreyDlvl/SlowwwwwProcessingTimes)
