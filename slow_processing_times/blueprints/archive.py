@@ -35,6 +35,8 @@ def upload_archive():
 
 @bp.route('/password', methods=['POST'])
 def get_archive_password():
+    print(utils.check_filename_in(request).content_length)
+
     data = request.get_json()
     if data is None:
         return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)

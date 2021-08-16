@@ -15,15 +15,11 @@ archives = {}
 
 @bp.route('/', methods=['POST'])
 def crack():
-    data = request.get_json()
-    if data is None:
-        return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
-    else:
-        try:
-            filename = data['filename']
-        except KeyError:
-            return utils.create_response({'message': 'Key is not recognized. Use \'filename\''}, 400)
-
+    response = utils.check_filename_in(request)
+    if not utils.is_response_empty(response):
+        return response
+    filename = utils.get_filename_from(request)
+        
     if not utils.archive_exists(filename):
         return utils.create_response({'file': filename, 'message': 'File not found'}, 400)
     
