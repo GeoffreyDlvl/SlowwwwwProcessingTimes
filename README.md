@@ -18,11 +18,16 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
+      <ul>
+        <li><a href="#upload-an-archive">Upload an archive</a></li>
+        <li><a href="#check-archive-status">Check archive status</a></li>
+        <li><a href="#crack-an-archive">Crack an archive</a></li>
+        <li><a href="#get-jobs-limit">Get jobs limit</a></li>
+        <li><a href="#set-jobs-limit">Set jobs limit</a></li>
+        <li><a href="#append-some-processing">Append some processing</a></li>
+      </ul>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
@@ -108,7 +113,7 @@ To illustrate the different routes and features available, we will be using [Pos
   * key: jobs_limit
   * value: the new jobs limit
 
-### Crack an archive
+### Append some processing
 ![Some_processing](/docs/some-processing.png?raw=true)
 * Route: http://127.0.0.1:5000/processing/some_processing
 * Method: POST
