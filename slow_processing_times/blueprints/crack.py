@@ -15,15 +15,11 @@ archives = {}
 
 @bp.route('/', methods=['POST'])
 def crack():
-    data = request.get_json()
-    if data is None:
-        return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
-    else:
-        try:
-            filename = data['filename']
-        except KeyError:
-            return utils.create_response({'message': 'Key is not recognized. Use \'filename\''}, 400)
-
+    response = utils.check_filename_in(request)
+    if not utils.is_response_empty(response):
+        return response
+    filename = utils.get_filename_from(request)
+        
     if not utils.archive_exists(filename):
         return utils.create_response({'file': filename, 'message': 'File not found'}, 400)
     
@@ -40,7 +36,9 @@ def crack():
                 }
                 , 201)
         archives[filename].state = State.CRACKING
+        print('CRAKING...')
         time.sleep(10)
+        print('DONE.')
         job_count -= 1
         password = 'the-password'
         try:
@@ -69,14 +67,13 @@ def jobs():
     if request.method == 'GET':
         return utils.create_response({'current_jobs_limit': current_app.config['JOBS_LIMIT']}, 201)
     else:
-        data = request.get_json()
-        if data is None:
+        if not request.is_json:
             return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
+        data = request.get_json()
+        try:
+            new_jobs_limit = data['jobs_limit']
+            current_app.config['JOBS_LIMIT'] = new_jobs_limit
+        except KeyError:
+            return utils.create_response({'message': 'Key is not recognized. Use \'jobs_limit\''}, 400)
         else:
-            try:
-                new_jobs_limit = data['jobs_limit']
-                current_app.config['JOBS_LIMIT'] = new_jobs_limit
-            except KeyError:
-                return utils.create_response({'message': 'Key is not recognized. Use \'jobs_limit\''}, 400)
-            else:
-                return utils.create_response({'new_jobs_limit': current_app.config['JOBS_LIMIT']}, 400)
+            return utils.create_response({'new_jobs_limit': current_app.config['JOBS_LIMIT']}, 400)

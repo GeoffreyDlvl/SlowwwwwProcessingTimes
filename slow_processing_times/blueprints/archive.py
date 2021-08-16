@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from .. import utils
 from ..enums.state_enum import State
-from ..entities.archive_info_entity import ArchiveInfo
+from ..entities.archive_entity import Archive
 from ..blueprints.crack import archives
 
 bp = Blueprint('archive', __name__, url_prefix='/archive')
@@ -26,23 +26,20 @@ def upload_archive():
         return utils.create_response({'message' : 'No file selected for uploading'}, 400)
     if file and is_file_allowed(file.filename):
         filename = secure_filename(file.filename)
-        archives[filename] = ArchiveInfo(state=State.UPLOADING)
+        archives[filename] = Archive(state=State.UPLOADING)
         file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
         archives[filename].state = State.UPLOADED
         return utils.create_response({'message' : 'File successfully uploaded'}, 201)
     else:
         return utils.create_response({'message' : 'Allowed file types are .rar and .zip'}, 400)
 
-@bp.route('/password', methods=['POST'])
+@bp.route('/info', methods=['POST'])
 def get_archive_password():
-    data = request.get_json()
-    if data is None:
-        return utils.create_response({'message': 'Error: mimetype is not application/json'}, 400)
-    try:
-        filename = data['filename']
-    except KeyError:
-        return utils.create_response({'message': 'Key is not recognized. Use \'filename\''}, 400)
-
+    response = utils.check_filename_in(request)
+    if not utils.is_response_empty(response):
+        return response
+    filename = utils.get_filename_from(request)
+        
     if not utils.archive_exists(filename):
         return utils.create_response({'file': filename, 'message': 'File not found'}, 400)
         
